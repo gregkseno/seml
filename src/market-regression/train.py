@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import xgboost as xgb
-from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 import os
 import sys
@@ -44,7 +43,7 @@ def train(model: xgb.sklearn.XGBRegressor,
 def get_data(data_path: str) -> tuple:
     """Trains XGBosst Regressor model
 
-    This method imports dataset and makes basic preprocessing of data
+    This method imports dataset and makes basic and specific preprocessing of data
     
     Parameters
     ----------
@@ -96,24 +95,9 @@ def get_data(data_path: str) -> tuple:
             else:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
     
-    # Add new date features and drop timestamp
-    train_df["yearmonth"] = train_df["timestamp"].dt.year*100 + train_df["timestamp"].dt.month
-    train_df["yearweek"] = train_df["timestamp"].dt.year*100 + train_df["timestamp"].dt.weekofyear
-    train_df["year"] = train_df["timestamp"].dt.year
-    train_df["month_of_year"] = train_df["timestamp"].dt.month
-    train_df["week_of_year"] = train_df["timestamp"].dt.weekofyear
-    train_df["day_of_week"] = train_df["timestamp"].dt.weekday
-
-    train_df.drop("timestamp", axis=1 , inplace=True)
-
-    # Replace categorical values with numerical
-    for f in train_df.columns:
-        if train_df[f].dtype=='object':
-            lbl = preprocessing.LabelEncoder()
-            lbl.fit(list(train_df[f].values)) 
-            train_df[f] = lbl.transform(list(train_df[f].values))
+    train_df = marketreg.preprocess(train_df)
     
-    X = train_df.drop(["id", "price_doc"], axis=1).to_numpy()
+    X = train_df.drop(["price_doc"], axis=1).to_numpy()
     y = train_df['price_doc'].to_numpy()
 
     # Split data
