@@ -26,3 +26,23 @@ def build_model() -> xgb.sklearn.XGBRegressor:
         "early_stopping_rounds": 20,
     }
     return xgb.XGBRegressor(**params)
+
+def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
+    """Predicts values using trained XGBoost Regressor model
+
+    This method implements XGBoost Regressor model with prediscribed parameters from XGBoost library 
+
+    Parameters
+    ----------
+    model : xgb.sklearn.XGBRegressor
+        Trained XGBosst Regressor model
+    X : np.ndarray
+        Array of features to be used input data
+
+    Returns
+    -------
+    np.ndarray
+        Predicted values
+    """
+    return model.predict(X)
+
