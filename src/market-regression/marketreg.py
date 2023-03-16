@@ -1,17 +1,17 @@
 import pandas as pd
 import numpy as np
 
-from xgboost import XGBRegressor
+import xgboost as xgb
 from sklearn import preprocessing
 
-def build_model() -> XGBRegressor:
+def build_model() -> xgb.sklearn.XGBRegressor:
     """Builds XGBosst model
 
-    This method implements XGBoost Regressor model with prediscrbed parameters from XGBoost library 
+    This function implements XGBoost Regressor model with prediscribed parameters from sklearn library 
 
     Returns
     -------
-    xgb.XGBRegressor
+    xgb.sklearn.XGBRegressor
         Model with prediscribed parameters
     """
     params = {
@@ -25,4 +25,4 @@ def build_model() -> XGBRegressor:
         "random_state": 42,
         "early_stopping_rounds": 20,
     }
-    return XGBRegressor(**params)
+    return xgb.XGBRegressor(**params)
