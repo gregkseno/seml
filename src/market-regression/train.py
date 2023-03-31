@@ -36,6 +36,12 @@ def train(model: xgb.sklearn.XGBRegressor,
     xgb.sklearn.XGBRegressor
         Trained XGBoost Regressor model
     """
+    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+    assert type(X) == np.ndarray, "Train data type must be np.ndarray"
+    assert type(y) == np.ndarray, "Train label type must be np.ndarray"
+    assert type(X_val) == np.ndarray, "Validation data type must be np.ndarray"
+    assert type(y_val) == np.ndarray, "Validation label type must be np.ndarray"
+
     return model.fit(X, y,
               eval_set=[(X, y) ,(X_val, y_val)],
               )
@@ -61,6 +67,9 @@ def get_data(data_path: str) -> tuple:
     np.ndarray
         Validation targets
     """
+
+    assert type(data_path) == str, "Data path must be string"
+
     train_df = pd.read_csv(data_path, parse_dates=['timestamp'])
     # Fix max_floor
     for index, row in train_df.iterrows():    
