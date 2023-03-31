@@ -43,6 +43,8 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
         Preprocessed data
     """
     # Add new date features and drop timestamp
+    assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
+
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
     data["year"] = data["timestamp"].dt.year
@@ -77,5 +79,8 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     np.ndarray
         Predicted values
     """
+    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+    assert type(X) == np.ndarray, "Input data type must be np.ndarray"
+
     return model.predict(X)
 
