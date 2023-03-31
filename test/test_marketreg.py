@@ -21,16 +21,11 @@ def test_preprocessing():
     assert isinstance(msg, AssertionError)
     assert msg.args[0] == "Raw data type must be pd.DataFrame"
 
-    # Test the length of features
+    # Test the columns
     msg = marketreg.preprocess(pd.DataFrame())
     assert isinstance(msg, AssertionError)
-    assert msg.args[0] == "Wrong features length"
+    assert msg.args[0] == "Wrong columns"
 
-    # Test that raw data has 'timestamp' column
-    test_columns = list(range(298))
-    msg = marketreg.preprocess(pd.DataFrame(columns=test_columns))
-    assert isinstance(msg, AssertionError)
-    assert msg.args[0] == "Raw data doesn't consist timestamp"
     
 
 def test_predict():

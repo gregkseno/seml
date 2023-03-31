@@ -47,8 +47,7 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     # Add new date features and drop timestamp
     try:
         assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-        assert len(data.columns) == 298, "Wrong features length"
-        assert 'timestamp' in data.columns, "Raw data doesn't consist timestamp"
+        assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')], "Wrong columns"
 
         data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
         data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
