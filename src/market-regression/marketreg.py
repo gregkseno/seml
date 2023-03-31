@@ -3,6 +3,7 @@ import numpy as np
 import xgboost as xgb
 from sklearn import preprocessing
 from sklearn.utils.validation import check_is_fitted
+from sklearn.exceptions import NotFittedError
 
 
 def build_model() -> xgb.sklearn.XGBRegressor:
@@ -44,26 +45,30 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
         Preprocessed data
     """
     # Add new date features and drop timestamp
-    assert type(data) == pd.core.frame.DataFrame, "Raw data type must be pd.DataFrame"
-    assert len(data.columns) == 298, "Wrong features length"
-    assert 'timestamp' in data.columns, "Raw data doesn't consist timestamp"
+    try:
+        assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
+        assert len(data.columns) == 298, "Wrong features length"
+        assert 'timestamp' in data.columns, "Raw data doesn't consist timestamp"
 
-    data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
-    data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
-    data["year"] = data["timestamp"].dt.year
-    data["month_of_year"] = data["timestamp"].dt.month
-    data["week_of_year"] = data["timestamp"].dt.weekofyear
-    data["day_of_week"] = data["timestamp"].dt.weekday
-    data = data.drop(["id", "timestamp"], axis=1)
+        data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
+        data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
+        data["year"] = data["timestamp"].dt.year
+        data["month_of_year"] = data["timestamp"].dt.month
+        data["week_of_year"] = data["timestamp"].dt.weekofyear
+        data["day_of_week"] = data["timestamp"].dt.weekday
+        data = data.drop(["id", "timestamp"], axis=1)
 
-    # Replace categorical values with numerical
-    for f in data.columns:
-        if data[f].dtype=='object':
-            lbl = preprocessing.LabelEncoder()
-            lbl.fit(list(data[f].values)) 
-            data[f] = lbl.transform(list(data[f].values))
+        # Replace categorical values with numerical
+        for f in data.columns:
+            if data[f].dtype=='object':
+                lbl = preprocessing.LabelEncoder()
+                lbl.fit(list(data[f].values)) 
+                data[f] = lbl.transform(list(data[f].values))
+    except AssertionError as e:
+        return e
 
     return data
+
 
 def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     """Predicts values using trained XGBoost Regressor model
@@ -82,10 +87,15 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     np.ndarray
         Predicted values
     """
-    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
-    check_is_fitted(model)
-    assert type(X) == np.ndarray, "Input data type must be np.ndarray"
-    assert X.shape[1:] == (298, ), "Wrong features length"
+    try:
+        assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+        check_is_fitted(model)
+        assert type(X) == np.ndarray, "Input data type must be np.ndarray"
+        assert X.shape[1:] == (298, ), "Wrong features length"
 
-    return model.predict(X)
+        return model.predict(X)
+    except (AssertionError, NotFittedError) as e:
+        return e
+
+    
 
