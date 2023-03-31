@@ -48,23 +48,22 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     try:
         assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
         assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')], "Wrong columns"
-
-        data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
-        data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
-        data["year"] = data["timestamp"].dt.year
-        data["month_of_year"] = data["timestamp"].dt.month
-        data["week_of_year"] = data["timestamp"].dt.weekofyear
-        data["day_of_week"] = data["timestamp"].dt.weekday
-        data = data.drop(["id", "timestamp"], axis=1)
-
-        # Replace categorical values with numerical
-        for f in data.columns:
-            if data[f].dtype=='object':
-                lbl = preprocessing.LabelEncoder()
-                lbl.fit(list(data[f].values)) 
-                data[f] = lbl.transform(list(data[f].values))
     except AssertionError as e:
         return e
+    data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
+    data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
+    data["year"] = data["timestamp"].dt.year
+    data["month_of_year"] = data["timestamp"].dt.month
+    data["week_of_year"] = data["timestamp"].dt.weekofyear
+    data["day_of_week"] = data["timestamp"].dt.weekday
+    data = data.drop(["id", "timestamp"], axis=1)
+
+    # Replace categorical values with numerical
+    for f in data.columns:
+        if data[f].dtype=='object':
+            lbl = preprocessing.LabelEncoder()
+            lbl.fit(list(data[f].values)) 
+            data[f] = lbl.transform(list(data[f].values))
 
     return data
 
@@ -91,10 +90,10 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
         check_is_fitted(model)
         assert type(X) == np.ndarray, "Input data type must be np.ndarray"
         assert X.shape[1:] == (298, ), "Wrong features length"
-
-        return model.predict(X)
     except (AssertionError, NotFittedError) as e:
         return e
+    
+    return model.predict(X)
 
     
 
