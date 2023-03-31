@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath('src/market-regression'))
+
 import marketreg
 import numpy as np
 from sklearn.exceptions import NotFittedError
@@ -22,7 +27,7 @@ def test_preprocessing():
     assert msg.args[0] == "Wrong features length"
 
     # Test that raw data has 'timestamp' column
-    test_columns = ['timestamp'] + list(range(297))
+    test_columns = list(range(298))
     msg = marketreg.preprocess(pd.DataFrame(columns=test_columns))
     assert isinstance(msg, AssertionError)
     assert msg.args[0] == "Raw data doesn't consist timestamp"
@@ -36,20 +41,22 @@ def test_predict():
     # TEST SUITE
     #=================================
     # Test model type
-    msg = marketreg.predict(xgb.XGBClassifier())
+    msg = marketreg.predict(xgb.XGBClassifier(), np.ones(shape=(1, 298)))
     assert isinstance(msg, AssertionError)
     assert msg.args[0] == "Model type must be xgb.sklearn.XGBRegressor"
 
     # Test that model is not fitted
-    msg = marketreg.predict(xgb.XGBRegressor())
+    msg = marketreg.predict(xgb.XGBRegressor(), np.ones(shape=(1, 298)))
     assert isinstance(msg, NotFittedError)
 
+    test_X = np.ones(shape=(1, 292))
+    test_y = np.ones(shape=(1,)) 
     # Test data type
-    msg = marketreg.preprocess([0, 1, 2, 3])
+    msg = marketreg.predict(xgb.XGBRegressor().fit(test_X, test_y), [0, 1, 2, 3])
     assert isinstance(msg, AssertionError)
     assert msg.args[0] == "Input data type must be np.ndarray"
 
     # Test data length
-    msg = marketreg.preprocess(np.ones(shape=(1, 298)))
+    msg = marketreg.predict(xgb.XGBRegressor().fit(test_X, test_y), np.ones(shape=(1, 292)))
     assert isinstance(msg, AssertionError)
-    assert msg.args[0] == "Input data type must be np.ndarray"
+    assert msg.args[0] == "Wrong features length"
