@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 from sklearn import preprocessing
+from sklearn.utils.validation import check_is_fitted
 
 
 def build_model() -> xgb.sklearn.XGBRegressor:
@@ -43,7 +44,9 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
         Preprocessed data
     """
     # Add new date features and drop timestamp
-    assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
+    assert type(data) == pd.core.frame.DataFrame, "Raw data type must be pd.DataFrame"
+    assert len(data.columns) == 298, "Wrong features length"
+    assert 'timestamp' in data.columns, "Raw data doesn't consist timestamp"
 
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
@@ -80,7 +83,9 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
         Predicted values
     """
     assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+    check_is_fitted(model)
     assert type(X) == np.ndarray, "Input data type must be np.ndarray"
+    assert X.shape[1:] == (298, ), "Wrong features length"
 
     return model.predict(X)
 
