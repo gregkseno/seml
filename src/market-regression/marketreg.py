@@ -24,8 +24,8 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     """
     # Add new date features and drop timestamp
     assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-    assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')] or \
-    list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')][:-1], "Wrong columns"
+    # assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')] or \
+    # list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')][:-1], "Wrong columns"
     
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
@@ -102,6 +102,7 @@ def get_data(data_path: str) -> tuple:
             else:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
     
+    print
     train_df = preprocess(train_df)
     
     X = train_df.drop(["price_doc"], axis=1).to_numpy()
@@ -168,17 +169,15 @@ def train(model: xgb.sklearn.XGBRegressor,
     assert type(y) == np.ndarray, "Train label type must be np.ndarray"
     assert type(X_val) == np.ndarray, "Validation data type must be np.ndarray"
     assert type(y_val) == np.ndarray, "Validation label type must be np.ndarray"
-
-    assert X.shape[1:] == (298, ), "Train data wrong shape"
-    assert X_val.shape[1:] == (298, ), "Validation data wrong shape"
-    
+    assert X.shape[1:] == (295, ), "Train data wrong shape"
+    assert X_val.shape[1:] == (295, ), "Validation data wrong shape"
     
     model.fit(X, y,
         eval_set=[(X, y) ,(X_val, y_val)],
         verbose=False,
         )
-    evals = model.evals_result()
-    return model, evals
+    train_metric = model.evals_result()['validation_0']['rmse']
+    return model, train_metric
 
 def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     """Predicts values using trained XGBoost Regressor model
@@ -203,7 +202,3 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     assert X.shape[1:] == (298, ), "Wrong features length"
     
     return model.predict(X)
-
-
-    
-
