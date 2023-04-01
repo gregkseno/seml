@@ -3,8 +3,8 @@ image: python:latest
 test:
   stage: test
   script:
-  - pip install -U sphinx
-  - sphinx-build -b html docs/source/ public
+  - pip install -r test/requirements.txt
+  - pytest
   only:
   - branches
   except:
