@@ -23,11 +23,10 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
         Preprocessed data
     """
     # Add new date features and drop timestamp
-    try:
-        assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-        assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')], "Wrong columns"
-    except AssertionError as e:
-        return e
+    assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
+    assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')] or \
+    list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')][:-1], "Wrong columns"
+    
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
     data["year"] = data["timestamp"].dt.year
@@ -66,10 +65,8 @@ def get_data(data_path: str) -> tuple:
     np.ndarray
         Validation targets
     """
-    try:
-        assert type(data_path) == str, "Data path must be string"
-    except AssertionError as e:
-        return e
+    assert type(data_path) == str, "Data path must be string"
+
     
     train_df = pd.read_csv(data_path, parse_dates=['timestamp'])
     # Fix max_floor
@@ -165,18 +162,23 @@ def train(model: xgb.sklearn.XGBRegressor,
     xgb.sklearn.XGBRegressor
         Trained XGBoost Regressor model
     """
-    try:
-        assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
-        assert type(X) == np.ndarray, "Train data type must be np.ndarray"
-        assert type(y) == np.ndarray, "Train label type must be np.ndarray"
-        assert type(X_val) == np.ndarray, "Validation data type must be np.ndarray"
-        assert type(y_val) == np.ndarray, "Validation label type must be np.ndarray"
-    except AssertionError as e:
-        return e
+    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+
+    assert type(X) == np.ndarray, "Train data type must be np.ndarray"
+    assert type(y) == np.ndarray, "Train label type must be np.ndarray"
+    assert type(X_val) == np.ndarray, "Validation data type must be np.ndarray"
+    assert type(y_val) == np.ndarray, "Validation label type must be np.ndarray"
+
+    assert X.shape[1:] == (298, ), "Train data wrong shape"
+    assert X_val.shape[1:] == (298, ), "Validation data wrong shape"
     
-    return model.fit(X, y,
+    
+    model.fit(X, y,
         eval_set=[(X, y) ,(X_val, y_val)],
+        verbose=False,
         )
+    evals = model.evals_result()
+    return model, evals
 
 def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     """Predicts values using trained XGBoost Regressor model
@@ -195,13 +197,10 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     np.ndarray
         Predicted values
     """
-    try:
-        assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
-        check_is_fitted(model)
-        assert type(X) == np.ndarray, "Input data type must be np.ndarray"
-        assert X.shape[1:] == (298, ), "Wrong features length"
-    except (AssertionError, NotFittedError) as e:
-        return e
+    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+    check_is_fitted(model)
+    assert type(X) == np.ndarray, "Input data type must be np.ndarray"
+    assert X.shape[1:] == (298, ), "Wrong features length"
     
     return model.predict(X)
 
