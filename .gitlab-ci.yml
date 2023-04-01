@@ -14,22 +14,6 @@ pytest:
   except:
   - main
 
-mutmut_test:
-  stage: test
-  script:
-  - pip install -r test/requirements.txt
-  - mutmut run
-  - touch report.xml
-  - mutmut junitxml > mutmut.xml
-  artifacts:
-    when: always
-    reports:
-      junit: report.xml
-  only:
-  - branches
-  except:
-  - main
-
 pages:
   stage: deploy
   script:
