@@ -3,7 +3,6 @@ import numpy as np
 import xgboost as xgb
 from sklearn import preprocessing
 from sklearn.utils.validation import check_is_fitted
-from sklearn.exceptions import NotFittedError
 from sklearn.model_selection import train_test_split
 
 
@@ -24,8 +23,8 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     """
     # Add new date features and drop timestamp
     assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-    # assert list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')] or \
-    # list(data.columns) == [line.rstrip() for line in open('src/market-regression/columns.txt')][:-1], "Wrong columns"
+    assert list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',') or \
+    list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',')[:-1], "Wrong columns"
     
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
@@ -73,24 +72,26 @@ def get_data(data_path: str) -> tuple:
     for index, row in train_df.iterrows():    
         if row['floor'] > row['max_floor']:
             train_df.loc[index, 'max_floor'] = row['floor']
+    print(train_df['price_doc'].isna())
 
     # Fix full_sq    
     for index, row in train_df.iterrows():    
         if row['life_sq'] > row['full_sq']:
             train_df.loc[index, 'full_sq'] = row['life_sq']
+    print(train_df['price_doc'].isna())
 
     # Fix odd build_year
     train_df.loc[15223, 'build_year'] = 2007 
     train_df.loc[10092, 'build_year'] = 2007
-
+    print(train_df['price_doc'].isna())
     # Fix NaN build_year
     train_df.loc[13120, 'build_year'] = 1970
-
+    print(train_df['price_doc'].isna())
     # Fix kitch_sq
     for index, row in train_df.iterrows():    
         if row['kitch_sq'] > row['full_sq']:
             train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
-
+    print(train_df['price_doc'].isna())
     # Fix NaN kitch_sq and life_sq
     for index, row in train_df.iterrows():
         if np.isnan(row['full_sq']):
@@ -101,8 +102,7 @@ def get_data(data_path: str) -> tuple:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] * 0.2
             else:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
-    
-    print
+    print(train_df['price_doc'].isna())
     train_df = preprocess(train_df)
     
     X = train_df.drop(["price_doc"], axis=1).to_numpy()
@@ -199,6 +199,6 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
     check_is_fitted(model)
     assert type(X) == np.ndarray, "Input data type must be np.ndarray"
-    assert X.shape[1:] == (298, ), "Wrong features length"
+    assert X.shape[1:] == (295, ), "Wrong features length"
     
     return model.predict(X)

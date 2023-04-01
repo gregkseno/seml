@@ -1,5 +1,6 @@
 import os
 import sys
+import pytest
 
 sys.path.insert(0, os.path.abspath('src/market-regression'))
 
@@ -8,6 +9,8 @@ import numpy as np
 from sklearn.exceptions import NotFittedError
 import xgboost as xgb
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
 
 
 def test_preprocessing():
@@ -65,94 +68,71 @@ def test_predict():
         assert msg.args[0] == "Wrong features length"
 
     
-
-def test_train():
+@pytest.mark.parametrize('X,X_val,y,y_val', [marketreg.get_data('test/test_data.csv')])
+def test_train(X, X_val, y, y_val):
     """
     Tests for various assertion cheks written in the train function
     """
+    # Remove NaN labels
+    ids = ~np.isnan(y)
+    y = y[ids]
+    X = X[ids]
+    ids = ~np.isnan(y_val)
+    y_val = y_val[ids]
+    X_val = X_val[ids]
     #=================================
     # ASSERTATION TEST SUITE
     #=================================
     # Test model type
     try:
-        msg = marketreg.train(xgb.XGBClassifier(), 
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),)
+        msg = marketreg.train(xgb.XGBClassifier(), X, y, X_val, y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Model type must be xgb.sklearn.XGBRegressor"
 
     # Test train data type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                [1],
-                                np.ones(shape=(1, )),
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, ))
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), [1], y, X_val, y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Train data type must be np.ndarray"
 
     # Test train label type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                np.ones(shape=(1, 298)),
-                                [1],
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, ))
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), X, [1], X_val, y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Train label type must be np.ndarray"
 
     # Test validation data type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),
-                                [1],
-                                np.ones(shape=(1, ))
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), X, y, [1], y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Validation data type must be np.ndarray"
 
     # Test validation label type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),
-                                np.ones(shape=(1, 298)),
-                                [1]
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), X, y, X_val, [1])
     except AssertionError as msg:
         assert msg.args[0] == "Validation label type must be np.ndarray"
 
     # Test validation label type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                np.ones(shape=(1, 2)),
-                                np.ones(shape=(1, )),
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), X[:, :2], y, X_val, y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Train data wrong shape"
 
     # Test validation label type
     try:
-        msg = marketreg.train(xgb.XGBRegressor(), 
-                                np.ones(shape=(1, 298)),
-                                np.ones(shape=(1, )),
-                                np.ones(shape=(1, 2)),
-                                np.ones(shape=(1, )),
-                                )
+        msg = marketreg.train(xgb.XGBRegressor(), X, y, X_val[:, :2], y_val)
     except AssertionError as msg:
         assert msg.args[0] == "Validation data wrong shape"
 
     #=================================
     # MODEL TEST SUITE
     #=================================
-    # Test R^2
+    # Test decrease of train metric
+    _, metrics = marketreg.train(marketreg.build_model(), X, y, X_val, y_val)
+    print(metrics)
+    for i, metric in enumerate(metrics[1:]):
+        assert metric < metrics[i]
     
 
 
