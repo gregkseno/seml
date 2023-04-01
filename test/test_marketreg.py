@@ -9,7 +9,6 @@ import numpy as np
 from sklearn.exceptions import NotFittedError
 import xgboost as xgb
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 
 
@@ -34,41 +33,49 @@ def test_preprocessing():
         assert isinstance(msg, AssertionError)
         assert msg.args[0] == "Wrong columns"
 
-def test_predict():
+@pytest.mark.parametrize('model,X_test', 
+                         [(xgb.XGBRegressor(),
+                          marketreg.preprocess(pd.read_csv('test/test_data.csv', parse_dates=['timestamp'])).to_numpy()
+                          )])
+def test_predict(model, X_test):
     """
     Tests for various assertion cheks written in the predict function
     """
+    model.load_model(os.path.join('test/model.json'))
     #=================================
     # TEST SUITE
     #=================================
     # Test model type
     try:
-        msg = marketreg.predict(xgb.XGBClassifier(), np.ones(shape=(1, 298)))
+        msg = marketreg.predict(xgb.XGBClassifier(), X_test)
     except AssertionError as msg:
         assert msg.args[0] == "Model type must be xgb.sklearn.XGBRegressor"
 
     # Test that model is not fitted
     try:
-        msg = marketreg.predict(xgb.XGBRegressor(), np.ones(shape=(1, 298)))
+        msg = marketreg.predict(xgb.XGBRegressor(), X_test)
     except NotFittedError as msg:
         assert msg.args[0] == "This XGBRegressor instance is not fitted yet. Call 'fit' with appropriate arguments before using this estimator."
 
-    test_X = np.ones(shape=(1, 292))
-    test_y = np.ones(shape=(1,)) 
     # Test data type
     try:
-        msg = marketreg.predict(xgb.XGBRegressor().fit(test_X, test_y), [0, 1, 2, 3])
+        msg = marketreg.predict(model, [0, 1, 2, 3])
     except AssertionError as msg:
         assert msg.args[0] == "Input data type must be np.ndarray"
 
     # Test data length
     try:
-        msg = marketreg.predict(xgb.XGBRegressor().fit(test_X, test_y), np.ones(shape=(1, 292)))
+        msg = marketreg.predict(model, X_test[:, :2])
     except AssertionError as msg:
         assert msg.args[0] == "Wrong features length"
 
+    # Behavior test
+    preds = marketreg.predict(model, X_test)
+    for pred in preds:
+        assert 1_000_000 < pred < 1_000_000_000
+
     
-@pytest.mark.parametrize('X,X_val,y,y_val', [marketreg.get_data('test/test_data.csv')])
+@pytest.mark.parametrize('X,X_val,y,y_val', [marketreg.get_data('test/train_data.csv')])
 def test_train(X, X_val, y, y_val):
     """
     Tests for various assertion cheks written in the train function
@@ -128,9 +135,8 @@ def test_train(X, X_val, y, y_val):
     #=================================
     # MODEL TEST SUITE
     #=================================
+    model, metrics = marketreg.train(marketreg.build_model(), X, y, X_val, y_val)
     # Test decrease of train metric
-    _, metrics = marketreg.train(marketreg.build_model(), X, y, X_val, y_val)
-    print(metrics)
     for i, metric in enumerate(metrics[1:]):
         assert metric < metrics[i]
     
