@@ -5,7 +5,6 @@ pytest:
   script:
   - pip install -r test/requirements.txt
   - pytest --junitxml=report.xml
-  - mutmut --junitxml=report.xml
   artifacts:
     when: always
     reports:
@@ -19,6 +18,7 @@ mutmut_test:
   stage: test
   script:
   - pip install -r test/requirements.txt
+  - mutmut run
   - mutmut junitxml > report.xml
   artifacts:
     when: always

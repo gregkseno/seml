@@ -2,4 +2,3 @@ venv
 docs/build/html
 __pycache__
 data
-model.json
