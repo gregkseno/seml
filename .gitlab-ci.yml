@@ -1,10 +1,25 @@
 image: python:latest
 
-test:
+pytest:
   stage: test
   script:
   - pip install -r test/requirements.txt
   - pytest --junitxml=report.xml
+  - mutmut --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
+  only:
+  - branches
+  except:
+  - main
+
+mutmut_test:
+  stage: test
+  script:
+  - pip install -r test/requirements.txt
+  - mutmut junitxml > report.xml
   artifacts:
     when: always
     reports:
