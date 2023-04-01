@@ -19,6 +19,7 @@ mutmut_test:
   script:
   - pip install -r test/requirements.txt
   - mutmut run
+  - touch report.xml
   - mutmut junitxml > report.xml
   artifacts:
     when: always
