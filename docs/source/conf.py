@@ -20,23 +20,25 @@ release = '0.1'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-# Turn off prepending module names
-add_module_names = False
-# Sort members by type
-autodoc_member_order = 'groupwise'
-# Document __init__, __repr__, and __str__ methods
-def skip(app, what, name, obj, would_skip, options):
-    if name in ("__init__", "__repr__", "__str__"):
-        return False
-    return would_skip
-def setup(app):
-    app.connect("autodoc-skip-member", skip)
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+napoleon_preprocess_types = False
+napoleon_type_aliases = None
+napoleon_attr_annotations = True
 
 
 # -- Options for HTML output -------------------------------------------------
