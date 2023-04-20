@@ -11,6 +11,7 @@ train:
     - ssh-add "$SSH_PRIVATE_KEY"
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git remote set-url origin git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
@@ -20,7 +21,7 @@ train:
     - pip install -r src/requirements.txt
     - python src/market-regression/train.py data/train.csv test/ > test/train.log
     - git add .
-    - git push git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git HEAD:$CI_COMMIT_BRANCH
+    - git push origin HEAD:$CI_COMMIT_BRANCH
   only:
   - branches
   except:
