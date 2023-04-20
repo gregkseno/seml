@@ -1,3 +1,34 @@
+"""Market Regression module.
+
+This module implemets functions to build and use the regression model to predict houshold prices.
+
+Example
+-------
+::
+
+    import marketreg
+    import pandas
+
+    # Load train data
+    X, X_val, y, y_val = marketreg.get_data(data_path)
+
+    # Build and train model
+    model = marketreg.build_model()
+    model, _ = marketreg.train(model, X, y, X_val, y_val)
+
+    # Load and preprocess test data
+    data = pd.read_csv(data_path, parse_dates=['timestamp'])
+    ids = data["id"]
+    data = marketreg.preprocess(data)
+
+    # Get predictions
+    preds = marketreg.predict(model, data.to_numpy())
+
+    
+More information about the functions are shown below.
+    
+"""
+
 import pandas as pd
 import numpy as np
 import xgboost as xgb
