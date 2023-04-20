@@ -202,7 +202,8 @@ def train(model: xgb.sklearn.XGBRegressor,
         verbose=10,
         )
     
-    return model
+    train_metric = model.evals_result()['validation_0']['rmse']
+    return model, train_metric
 
 def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     """Predicts values using trained XGBoost Regressor model
