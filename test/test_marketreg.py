@@ -35,7 +35,7 @@ def test_preprocessing():
 
 @pytest.mark.parametrize('model,X_test', 
                          [(xgb.XGBRegressor(),
-                          marketreg.preprocess(pd.read_csv('test/test_data.csv', parse_dates=['timestamp'])).to_numpy()
+                          marketreg.preprocess(pd.read_csv('data/test_data.csv', parse_dates=['timestamp'])).to_numpy()
                           )])
 def test_predict(model, X_test):
     """
@@ -75,7 +75,7 @@ def test_predict(model, X_test):
         assert 1_000_000 < pred < 1_000_000_000
 
     
-@pytest.mark.parametrize('X,X_val,y,y_val', [marketreg.get_data('test/train_data.csv')])
+@pytest.mark.parametrize('X,X_val,y,y_val', [marketreg.get_data('data/train_data.csv')])
 def test_train(X, X_val, y, y_val):
     """
     Tests for various assertion cheks written in the train function
