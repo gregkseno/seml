@@ -3,7 +3,7 @@ image: python:latest
 train:
   stage: build
   before_script:
-    - apt-get install git-lfs > /dev/null
+    - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
     - 'command -v ssh-agent > /dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - chmod 400 "$SSH_PRIVATE_KEY"
