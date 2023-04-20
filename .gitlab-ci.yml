@@ -15,6 +15,7 @@ train:
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
+  - git lfs install
   - pip install -r src/requirements.txt
   - python src/market-regression/train.py data/train.csv test/ > test/train.log
   - git add .
