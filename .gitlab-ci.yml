@@ -17,7 +17,7 @@ train:
   - pip install -r src/requirements.txt
   - python src/market-regression/train.py data/train.csv test/ > test/log.txt
   - git add test/log.txt
-  - git push origin HEAD:$CI_COMMIT_BRANCH
+  - git push git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git HEAD:$CI_COMMIT_BRANCH
   only:
   - branches
   except:
