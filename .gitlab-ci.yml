@@ -6,6 +6,8 @@ train:
   - pip install -r src/requirements.txt
   - python src/market-regression/train.py data/train.csv test/ > test/log.txt
   - git add test/log.txt
+  - git branch
+  - git status
   - git push origin $CI_COMMIT_BRANCH
   only:
   - branches
