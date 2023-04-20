@@ -1,9 +1,6 @@
 # Sphinx build folder
 docs/build
 
-# Dataset
-code/data
-
 # Editors
 .vscode/
 .idea/
