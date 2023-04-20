@@ -3,8 +3,9 @@ image: python:latest
 train:
   stage: build
   script:
+  - pip install -r src/requirements.txt
+  - python src/market-regression/train.py data/train.csv test/ > test/log.txt
   - git status
-  - head -n 1 data/test.csv 
   only:
   - branches
   except:
