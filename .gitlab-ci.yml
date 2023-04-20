@@ -4,6 +4,7 @@ train:
   stage: build
   before_script:
     - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+    - apt-get install git-lfs
     - 'command -v ssh-agent > /dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - chmod 400 "$SSH_PRIVATE_KEY"
@@ -15,11 +16,11 @@ train:
     - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-  - git lfs install
-  - pip install -r src/requirements.txt
-  - python src/market-regression/train.py data/train.csv test/ > test/train.log
-  - git add .
-  - git push git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git HEAD:$CI_COMMIT_BRANCH
+    - git lfs install
+    - pip install -r src/requirements.txt
+    - python src/market-regression/train.py data/train.csv test/ > test/train.log
+    - git add .
+    - git push git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git HEAD:$CI_COMMIT_BRANCH
   only:
   - branches
   except:
