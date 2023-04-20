@@ -149,7 +149,7 @@ def build_model() -> xgb.sklearn.XGBRegressor:
     """
     params = {
         "objective": "reg:squarederror",
-        "n_estimators":1,
+        "n_estimators":1000,
         "max_depth": 8,
         'eta': 0.01,
         "subsample": 0.7,
@@ -199,7 +199,7 @@ def train(model: xgb.sklearn.XGBRegressor,
     
     model.fit(X, y,
         eval_set=[(X, y) ,(X_val, y_val)],
-        verbose=False,
+        verbose=10,
         )
     
     return model
