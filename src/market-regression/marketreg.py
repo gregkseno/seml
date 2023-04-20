@@ -103,26 +103,21 @@ def get_data(data_path: str) -> tuple:
     for index, row in train_df.iterrows():    
         if row['floor'] > row['max_floor']:
             train_df.loc[index, 'max_floor'] = row['floor']
-    print(train_df['price_doc'].isna())
 
     # Fix full_sq    
     for index, row in train_df.iterrows():    
         if row['life_sq'] > row['full_sq']:
             train_df.loc[index, 'full_sq'] = row['life_sq']
-    print(train_df['price_doc'].isna())
 
     # Fix odd build_year
     train_df.loc[15223, 'build_year'] = 2007 
     train_df.loc[10092, 'build_year'] = 2007
-    print(train_df['price_doc'].isna())
     # Fix NaN build_year
     train_df.loc[13120, 'build_year'] = 1970
-    print(train_df['price_doc'].isna())
     # Fix kitch_sq
     for index, row in train_df.iterrows():    
         if row['kitch_sq'] > row['full_sq']:
             train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
-    print(train_df['price_doc'].isna())
     # Fix NaN kitch_sq and life_sq
     for index, row in train_df.iterrows():
         if np.isnan(row['full_sq']):
@@ -133,7 +128,6 @@ def get_data(data_path: str) -> tuple:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] * 0.2
             else:
                 train_df.loc[index, 'kitch_sq'] = row['full_sq'] - row['life_sq']
-    print(train_df['price_doc'].isna())
     train_df = preprocess(train_df)
     
     X = train_df.drop(["price_doc"], axis=1).to_numpy()
@@ -205,8 +199,9 @@ def train(model: xgb.sklearn.XGBRegressor,
     
     model.fit(X, y,
         eval_set=[(X, y) ,(X_val, y_val)],
-        verbose=False,
+        verbose=10,
         )
+    
     train_metric = model.evals_result()['validation_0']['rmse']
     return model, train_metric
 
