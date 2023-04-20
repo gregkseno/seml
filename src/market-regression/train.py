@@ -1,3 +1,18 @@
+"""Train script.
+
+This script implements training of regression model.
+
+Example
+-------
+::
+
+    [~]$ ls <save_path>
+    [~]$ python train.py <data_location> <save_path>
+    [~]$ ls <save_path>
+    model.json
+
+"""
+
 import os
 import sys
 import marketreg

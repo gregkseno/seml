@@ -1,3 +1,32 @@
+"""Predict script.
+
+This script implements prediction of houshold prices using pretrained model.
+
+Example
+-------
+::
+
+    [~]$ python predict.py <data_location> <model_location>
+    +----------------+-------------------+
+    | Transaction ID | Approximate Price |
+    +----------------+-------------------+
+    |     30474      |      5709956      |
+    |     30475      |      8662689      |
+    |     30476      |      5963731      |
+    |     30477      |      6130314      |
+    |     30478      |      5387550      |
+    |     30479      |      9045907      |
+    |     38135      |      9206236      |
+    +----------------+-------------------+
+
+
+Notes
+-----
+    The predicted price could be saved in file using ``<command> > result.txt``.
+
+"""
+
+
 import os
 import sys
 import pandas as pd
