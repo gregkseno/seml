@@ -20,9 +20,9 @@ train:
     - git lfs install
     - pip install -r src/requirements.txt
     - python src/market-regression/train.py data/train.csv test/ > test/train.log
-    - git add .
+    - git add test/
     - git commit -m "Uploaded new logs and model"
-    - git push origin HEAD:$CI_COMMIT_BRANCH
+    - git push -o ci.skip origin HEAD:$CI_COMMIT_BRANCH
   only:
   - branches
   except:
