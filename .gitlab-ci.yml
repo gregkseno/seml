@@ -19,11 +19,12 @@ pages:
   script:
   - pip install -U sphinx
   - pip install -r src/requirements.txt
-  - pwd
-  - ls
   - sphinx-apidoc -o docs/source/ src/market-regression/
   - sphinx-build -b html docs/source/ public
   artifacts:
     paths:
     - public
+  only:
+  - main
+  - develop
 
