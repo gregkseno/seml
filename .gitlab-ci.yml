@@ -10,7 +10,8 @@ train:
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - mkdir -p ~/.ssh
-    - cat gitlab-known-hosts >> ~/.ssh/known_hosts
+    - ssh-keyscan gitlab.com >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
   - pip install -r src/requirements.txt
   - python src/market-regression/train.py data/train.csv test/ > test/log.txt
