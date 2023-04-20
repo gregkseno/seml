@@ -1,5 +1,15 @@
 image: python:latest
 
+train:
+  stage: build
+  script:
+  - git status
+  - head -n 1 data/test.csv 
+  only:
+  - branches
+  except:
+  - main
+  
 pytest:
   stage: test
   script:
