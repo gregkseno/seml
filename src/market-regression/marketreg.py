@@ -228,3 +228,22 @@ def predict(model: xgb.sklearn.XGBRegressor, X: np.ndarray) -> np.ndarray:
     assert X.shape[1:] == (295, ), "Wrong features length"
     
     return model.predict(X)
+
+def save_model(model: xgb.sklearn.XGBRegressor, save_path: str):
+    """Saves model
+
+    This method saves trained XGBoost Regressor model
+
+    Parameters
+    ----------
+    model : xgb.sklearn.XGBRegressor
+        Trained XGBosst Regressor model
+    save_path : str
+        Path to save data
+
+    """
+    assert type(model) == xgb.sklearn.XGBRegressor, "Model type must be xgb.sklearn.XGBRegressor"
+    check_is_fitted(model)
+    assert type(save_path) == str, "Input data type must be str"
+    
+    model.save_model(save_path)
