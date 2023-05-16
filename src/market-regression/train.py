@@ -24,4 +24,4 @@ if __name__ == "__main__":
         X, X_val, y, y_val = marketreg.get_data(data_path)
         model = marketreg.build_model()
         model, _ = marketreg.train(model, X, y, X_val, y_val)
-        model.save_model(os.path.join(save_path, 'model.json'))
+        marketreg.save_model(model, os.path.join(save_path, 'model.json'))
