@@ -9,6 +9,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../src/market-regression'))
+sys.path.insert(0, os.path.abspath('../../service'))
 
 
 project = 'Sberbank Russian Housing Market'
