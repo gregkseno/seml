@@ -40,4 +40,4 @@ if __name__ == "__main__":
     params.pop('data_path')
     model = marketreg.build_model(params)
     model, _ = marketreg.train(model, X, y, X_val, y_val)
-    marketreg.save_model(model, os.path.join(save_path, 'model.json'))
+    marketreg.save_model(model, save_path)
