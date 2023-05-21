@@ -25,6 +25,7 @@ train:
       if [[ "${CHANGES}" -gt 0 ]]; then
         echo "Committing updated files to git"
         git add test/
+        git add model/
         git commit -m "Uploaded new logs and model"
         git push -o ci.skip origin HEAD:$CI_COMMIT_BRANCH
       else
