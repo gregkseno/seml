@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from datetime import datetime
+import numpy as np
 import redis
-import marketreg
+import hashlib
 import os
 
 app = Flask(__name__)
@@ -28,136 +29,101 @@ def encode_none(s):
 
     return bytes(str(s), encoding='utf-8')
 
-def state_function(func):
-    class custom_str(str):
-        def __call__(self):
-            return func.__name__, str(datetime.now())
 
-    return custom_str(func.__name__)
+def model_hash(model_id):
+    return f"/models/{model_id}"
 
-class ModelModel():
-    """
-    Models are stored as hash objects in Redis KV
+def model_key():
+    string = datetime.now().isoformat()
+    return hashlib.shake_128(str.encode(string)).hexdigest(4)
 
-    # states
-    created
+def to_db(model_id, save_path):
+    return dict(
+        model_id=encode_none(model_id),
+        save_path=encode_none(save_path),
+    )
 
-    # attributes
-    model_id: str
-    date: str
-    ckpt_path: str
-
-    """
-    @staticmethod
-    def model_hash(model_id):
-        return f"/models/{model_id}"
-
-    @staticmethod
-    def model_key():
-        string = datetime.now().isoformat()
-        return hashlib.shake_128(str.encode(string)).hexdigest(4)
-
-    @staticmethod
-    @state_function
-    def created():
-        ...
-
-    @staticmethod
-    def models():
-        return '/models'
-
-    @staticmethod
-    def to_db(**kwargs):
-        return dict(
-            model_id=encode_none(kwargs["model_id"]),
-            ckpt_path=encode_none(kwargs["ckpt_path"]),
-        )
-
-    @staticmethod
-    def from_db(**kwargs):
-        return dict(
-            model_id=decode_none(kwargs["model_id"]),
-            ckpt_path=decode_none(kwargs["ckpt_path"]),
-            created=decode_none(kwargs["created"]),
-        )
-
-
-class AddModel():
-    ckpt_path: str
-
-
-class GetModelOut():
-    model_id: str
-    ckpt_path: str
-    created: str
+def from_db(model_id, save_path, created):
+    return dict(
+        model_id=decode_none(model_id),
+        save_path=decode_none(save_path),
+        created=decode_none(created),
+    )
 
 
 @app.route("/models", methods=["POST"])
 def add_model():
-    model = AddModel(**request.json)
-    r = redis.Redis()
-    model_key = ModelModel.model_key()
-    model_hash = ModelModel.model_hash(model_key)
+    args = dict(request.args)
+    save_path = args.pop('save_path')
+    if save_path is None: return Response("Argument save_path must be given", status=409)
 
+    r = redis.Redis()
+    key = model_key()
+    hashed = model_hash(key)
     with r.pipeline() as pipe:
         try:
-            pipe.watch(model_hash)
-
-            res = pipe.hsetnx(model_hash, *ModelModel.created())
+            pipe.watch(hashed)
+            res = pipe.hsetnx(hashed, 'created', str(datetime.now()))
             if res == 1:
-                pipe.hset(model_hash, mapping=ModelModel.to_db(
-                    model_id=model_key,
-                    ckpt_path=model.ckpt_path
+                pipe.hset(hashed, mapping=to_db(
+                    model_id=key,
+                    save_path=save_path
                 ))
+                pipe.sadd('/models', key)
+                
+                params = " ".join([f'--{key} {arg}' for key, arg in args.items()])
 
-                pipe.sadd(ModelModel.models(), model_key)
-
-                response = jsonify()
-                response.status_code = 201
-                response.headers['Location'] = model_hash
-                # run the training
-                os.system(
-                    f'python ames_model/train.py --save-folder={model.ckpt_path}')
+                os.system(f'python src/market-regression/train.py {params} data/train.csv {save_path}')
+                response = Response(f"Model was created and saved at /models/{hashed}", status=201, mimetype='application/json')
+                response.headers['Location'] = hashed
                 return response
 
-            response = jsonify()
-            response.status_code = 409
-            return response
+            return Response("Field already exists in the hash and no operation was performed", status=409)
 
         except redis.WatchError:
-            response = jsonify()
-            response.status_code = 409
-            return response
+            return Response("Redis is not launched", status=409)
 
 
 @app.route("/models/<model_id>")
 def get_model(model_id):
     r = redis.Redis()
     res = r.hgetall(f'/models/{model_id}')
+
     if len(res) > 0:
-        res = ModelModel.from_db(**decode_none(res))
-        response = jsonify(GetModelOut(**res))
+        res = from_db(**decode_none(res))
+        response = jsonify(res)
         response.status_code = 200
         return response
 
-    response = jsonify()
-    response.status_code = 404
-    return response
+    return Response("Model not found", status=404)
 
+@app.route("/models/all")
+def get_all_model():
+    r = redis.Redis()
+    res = r.scan(_type='hash')
+    res = list(filter(lambda x: x.startswith(b'/models/'), res[1]))
+    if len(res) > 0:
+        res = decode_none(res)
+        response = jsonify(res)
+        response.status_code = 200
+        return response
+
+    return Response("There are no models", status=404)
 
 @app.route("/models/<model_id>/predict")
 def predict_model(model_id):
     r = redis.Redis()
     res = r.hgetall(f'/models/{model_id}')
     if len(res) > 0:
-        res = ModelModel.from_db(**decode_none(res))
-        ckpt_path = res['ckpt_path']
+        res = from_db(**decode_none(res))
+        save_path = res['save_path']
         # run the prediction
-        os.system(f'python src/market-regression/predict.py --model-folder={ckpt_path} --save-path={ckpt_path}')
-        response = jsonify(GetModelOut(**res))
+        os.system(f'python src/market-regression/predict.py data/test.csv {save_path}/model.json {save_path}')
+        response = jsonify(np.load(f"{save_path}/predictions.npy").tolist())
         response.status_code = 200
         return response
 
-    response = jsonify()
-    response.status_code = 404
-    return response
+    return Response("Model not found", status=404)
+
+
+app.run()
