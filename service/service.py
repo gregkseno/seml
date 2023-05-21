@@ -202,12 +202,14 @@ def get_all_model():
 
     return Response("There are no models", status=404)
 
-@app.route("/models/<model_id>/predict")
-def predict_model(model_id):
-    """GET method of /models/<model_id>/predict
+@app.route("/predict")
+def predict_model():
+    """GET method of /predict
 
     Predicts test data by given model
     """
+    model_id = request.args.get('m')
+    if model_id is None: return Response("Argument m (model_id) must be given", status=409)
     r = redis.Redis()
     res = r.hgetall(f'/models/{model_id}')
     if len(res) > 0:
