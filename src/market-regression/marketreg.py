@@ -138,10 +138,15 @@ def get_data(data_path: str) -> tuple:
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_val, y_train, y_val
 
-def build_model(params=None) -> xgb.sklearn.XGBRegressor:
+def build_model(params:dict =None) -> xgb.sklearn.XGBRegressor:
     """Builds XGBosst model
 
     This function implements XGBoost Regressor model with prediscribed parameters from sklearn library 
+    
+    Parameters
+    ----------
+    params : dict
+        Parameters of model
 
     Returns
     -------
