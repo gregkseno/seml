@@ -18,7 +18,7 @@ Template
 """"""""
 ::
 
-    [~]$ python train.py <data_location> <save_path>
+    [~]$ python train.py <data_path> <save_path>
 
 Input parameters
 
@@ -62,7 +62,7 @@ Input parameters
 positional arguments:
   * data_path - Path of data to predict
   * model_path - Path of trained model
-  * save_path - Path of trained model
+  * save_path - Path of saved predictions
   
 Example
 """""""

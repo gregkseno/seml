@@ -19,7 +19,7 @@ train:
   script:
     - git lfs install
     - pip install -r src/requirements.txt
-    - python src/market-regression/train.py data/train.csv model/ > model/train.log
+    - python src/market-regression/train.py data/train.csv model/model.json > model/train.log
     - |     
       CHANGES=$(git status --porcelain | wc -l)
       if [[ "${CHANGES}" -gt 0 ]]; then
@@ -55,6 +55,7 @@ pages:
   - pip install -U sphinx
   - pip install -r src/requirements.txt
   - sphinx-apidoc -o docs/source/ src/market-regression/
+  - sphinx-apidoc -o docs/source/ service/
   - sphinx-build -b html docs/source/ public
   artifacts:
     paths:
