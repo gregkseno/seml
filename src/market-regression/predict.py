@@ -23,7 +23,7 @@ import marketreg
 parser = argparse.ArgumentParser(description='Predict houshold prices')
 parser.add_argument('data_path', type=str, help='Path of data to predict')
 parser.add_argument('model_path', type=str, help='Path of trained model')
-parser.add_argument('save_path', type=str, help='Path of trained model')
+parser.add_argument('save_path', type=str, help='Path of saved predictions')
 
 
 if __name__ == "__main__":
