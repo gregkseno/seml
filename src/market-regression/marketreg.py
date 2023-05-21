@@ -30,6 +30,7 @@ More information about the functions are shown below.
 """
 
 import pandas as pd
+import json
 import numpy as np
 import xgboost as xgb
 from sklearn import preprocessing
@@ -54,8 +55,8 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     """
     # Add new date features and drop timestamp
     assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-    assert list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',') or \
-    list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',')[:-1], "Wrong columns"
+    assert list(data.columns) == open('data/columns.txt').readline().split(sep=',') or \
+    list(data.columns) == open('data/columns.txt').readline().split(sep=',')[:-1], "Wrong columns"
     
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
@@ -137,27 +138,24 @@ def get_data(data_path: str) -> tuple:
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_val, y_train, y_val
 
-def build_model() -> xgb.sklearn.XGBRegressor:
+def build_model(params:dict =None) -> xgb.sklearn.XGBRegressor:
     """Builds XGBosst model
 
     This function implements XGBoost Regressor model with prediscribed parameters from sklearn library 
+    
+    Parameters
+    ----------
+    params : dict
+        Parameters of model
 
     Returns
     -------
     xgb.sklearn.XGBRegressor
         Model with prediscribed parameters
     """
-    params = {
-        "objective": "reg:squarederror",
-        "n_estimators":1000,
-        "max_depth": 8,
-        'eta': 0.01,
-        "subsample": 0.7,
-        "colsample_bytree": 0.7,
-        "reg_lambda": 0.3,
-        "random_state": 42,
-        "early_stopping_rounds": 20,
-    }
+    if params is None:
+        with open('model/default.conf') as file:
+            params = json.loads(file.read())
     return xgb.XGBRegressor(**params)
 
 def train(model: xgb.sklearn.XGBRegressor,
@@ -247,3 +245,20 @@ def save_model(model: xgb.sklearn.XGBRegressor, save_path: str):
     assert type(save_path) == str, "Input data type must be str"
     
     model.save_model(save_path)
+
+def load_model(save_path: str):
+    """Loads model
+
+    This method loads trained XGBoost Regressor model
+
+    Parameters
+    ----------
+    save_path : str
+        Path of trained ,odel
+
+    """
+    assert type(save_path) == str, "Input data type must be str"
+    
+    model = xgb.XGBRegressor()
+    model.load_model(str)
+    return model

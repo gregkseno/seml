@@ -19,7 +19,7 @@ train:
   script:
     - git lfs install
     - pip install -r src/requirements.txt
-    - python src/market-regression/train.py data/train.csv test/ > test/train.log
+    - python src/market-regression/train.py data/train.csv model/ > model/train.log
     - |     
       CHANGES=$(git status --porcelain | wc -l)
       if [[ "${CHANGES}" -gt 0 ]]; then
