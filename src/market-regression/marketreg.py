@@ -260,5 +260,5 @@ def load_model(save_path: str):
     assert type(save_path) == str, "Input data type must be str"
     
     model = xgb.XGBRegressor()
-    model.load_model(str)
+    model.load_model(save_path)
     return model
