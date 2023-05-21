@@ -30,6 +30,7 @@ More information about the functions are shown below.
 """
 
 import pandas as pd
+import json
 import numpy as np
 import xgboost as xgb
 from sklearn import preprocessing
@@ -137,7 +138,7 @@ def get_data(data_path: str) -> tuple:
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     return X_train, X_val, y_train, y_val
 
-def build_model() -> xgb.sklearn.XGBRegressor:
+def build_model(params=None) -> xgb.sklearn.XGBRegressor:
     """Builds XGBosst model
 
     This function implements XGBoost Regressor model with prediscribed parameters from sklearn library 
@@ -147,17 +148,9 @@ def build_model() -> xgb.sklearn.XGBRegressor:
     xgb.sklearn.XGBRegressor
         Model with prediscribed parameters
     """
-    params = {
-        "objective": "reg:squarederror",
-        "n_estimators":1000,
-        "max_depth": 8,
-        'eta': 0.01,
-        "subsample": 0.7,
-        "colsample_bytree": 0.7,
-        "reg_lambda": 0.3,
-        "random_state": 42,
-        "early_stopping_rounds": 20,
-    }
+    if params is None:
+        with open('model/default.conf') as file:
+            params = json.loads(file.read())
     return xgb.XGBRegressor(**params)
 
 def train(model: xgb.sklearn.XGBRegressor,
