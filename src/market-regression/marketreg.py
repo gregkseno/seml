@@ -55,8 +55,8 @@ def preprocess(data: pd.DataFrame) -> pd.DataFrame:
     """
     # Add new date features and drop timestamp
     assert type(data) == pd.DataFrame, "Raw data type must be pd.DataFrame"
-    assert list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',') or \
-    list(data.columns) == open('src/market-regression/columns.txt').readline().split(sep=',')[:-1], "Wrong columns"
+    assert list(data.columns) == open('data/columns.txt').readline().split(sep=',') or \
+    list(data.columns) == open('data/columns.txt').readline().split(sep=',')[:-1], "Wrong columns"
     
     data["yearmonth"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.month
     data["yearweek"] = data["timestamp"].dt.year*100 + data["timestamp"].dt.weekofyear
