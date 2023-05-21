@@ -247,3 +247,20 @@ def save_model(model: xgb.sklearn.XGBRegressor, save_path: str):
     assert type(save_path) == str, "Input data type must be str"
     
     model.save_model(save_path)
+
+def load_model(save_path: str):
+    """Loads model
+
+    This method loads trained XGBoost Regressor model
+
+    Parameters
+    ----------
+    save_path : str
+        Path of trained ,odel
+
+    """
+    assert type(save_path) == str, "Input data type must be str"
+    
+    model = xgb.XGBRegressor()
+    model.load_model(str)
+    return model
