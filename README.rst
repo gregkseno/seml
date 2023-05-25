@@ -18,12 +18,25 @@ Template
 """"""""
 ::
 
-    [~]$ python train.py <data_location> <save_path>
+    [~]$ python train.py <data_path> <save_path>
 
 Input parameters
 
-* <data_location> - location of train data (*.csv* file)
-* <save_path> - location where should be saved trained model (saves as *model.json*)
+positional arguments:
+  * data_path - Path of train data
+  * save_path - Path to save trained model
+
+options:
+  * -h, --help - show this help message and exit
+  * --objective OBJECTIVE - Train objective
+  * --n_estimators N_ESTIMATORS - Number of gradient boosted trees
+  * --max_depth MAX_DEPTH - Maximum tree depth for base learners
+  * --eta ETA - Boosting learning rate
+  * --subsample SUBSAMPLE - Subsample ratio of the training instance
+  * --colsample_bytree COLSAMPLE_BYTREE - Subsample ratio of columns when constructing each tree
+  * --reg_lambda REG_LAMBDA - L2 regularization term on weights
+  * --random_state RANDOM_STATE - Random number seed
+  * --early_stopping_rounds EARLY_STOPPING_ROUNDS - Activates early stopping
   
 Example
 """""""
@@ -42,29 +55,22 @@ Template
 """"""""
 ::
 
-    [~]$ python predict.py <data_location> <model_location>
+    [~]$ python predict.py <data_path> <model_path> <save_path>
 
 Input parameters
 
-* <data_location> - location of data to be predicted (*.csv* file)
-* <save_path> - location of the trained model (*model.json* file)
+positional arguments:
+  * data_path - Path of data to predict
+  * model_path - Path of trained model
+  * save_path - Path of saved predictions
   
 Example
 """""""
 ::
     
-    [~]$ python predict.py test.csv model.json
-    +----------------+-------------------+
-    | Transaction ID | Approximate Price |
-    +----------------+-------------------+
-    |     30474      |      5709956      |
-    |     30475      |      8662689      |
-    |     30476      |      5963731      |
-    |     30477      |      6130314      |
-    |     30478      |      5387550      |
-    |     30479      |      9045907      |
-    |     38135      |      9206236      |
-    +----------------+-------------------+
+    [~]$ python predict.py <data_path> <model_path> <save_path>
+    [~]$ ls <save_path>
+    predictions.npy
 
 Setup
 -----

@@ -41,7 +41,7 @@ def test_predict(model, X_test):
     """
     Tests for various assertion cheks written in the predict function
     """
-    model.load_model(os.path.join('test/model.json'))
+    model.load_model(os.path.join('model/model.json'))
     #=================================
     # TEST SUITE
     #=================================

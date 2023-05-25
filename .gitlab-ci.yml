@@ -19,12 +19,13 @@ train:
   script:
     - git lfs install
     - pip install -r src/requirements.txt
-    - python src/market-regression/train.py data/train.csv test/ > test/train.log
+    - python src/market-regression/train.py data/train.csv model/model.json > model/train.log
     - |     
       CHANGES=$(git status --porcelain | wc -l)
       if [[ "${CHANGES}" -gt 0 ]]; then
         echo "Committing updated files to git"
         git add test/
+        git add model/
         git commit -m "Uploaded new logs and model"
         git push -o ci.skip origin HEAD:$CI_COMMIT_BRANCH
       else
@@ -55,6 +56,7 @@ pages:
   - pip install -U sphinx
   - pip install -r src/requirements.txt
   - sphinx-apidoc -o docs/source/ src/market-regression/
+  - sphinx-apidoc -o docs/source/ service/
   - sphinx-build -b html docs/source/ public
   artifacts:
     paths:
