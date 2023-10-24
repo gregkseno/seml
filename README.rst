@@ -4,7 +4,7 @@ Predicting of Realty Prices
 
 Introduction
 ------------
-This library implements ML model wich is used to predict prices 
+This library implements ML model which is used to predict prices 
 of realty in Moscow Region. The model is trained on `Sberbank Russian Housing Market`_ dataset
 
 Usage
